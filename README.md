@@ -1,5 +1,7 @@
 # Kalkulator delegacji BOBRTECH
 
+[Historia promptów AI, które zbudowały ten projekt](https://dawidml.github.io/bobrtech-kalkulator-delegacji/).
+
 Prosta aplikacja www do sprawdzenia limitu noclegu, klasy pociągu oraz terminu rozliczenia
 delegacji. To projekt szkoleniowy: firma BOBRTECH i jej polityka są fikcyjne.
 
@@ -57,3 +59,10 @@ Zasady pochodzą z fikcyjnej polityki szkoleniowej BOBRTECH **HR-POL-03 v3.0**:
 
 Oba obiekty są w pliku `app.js`. Żeby zmienić zasady, edytuj odpowiedni obiekt; lista lokalizacji
 w formularzu noclegu powstaje z `POLITYKA_NOCLEGU`.
+
+## Historia promptów (AI Prompt Timeline)
+
+Strona [AI Prompt Timeline](https://dawidml.github.io/bobrtech-kalkulator-delegacji/) pokazuje każdy
+prompt Claude Code i Cursora, który zbudował ten projekt, razem z commitem i diffem. Publikuje się
+automatycznie przy `git push` (hook pre-push z AI Git Starter). Treść promptów pochodzi z lokalnej
+bazy w `.git`, a eksport usuwa komunikaty aplikacji i ścieżki lokalne.
