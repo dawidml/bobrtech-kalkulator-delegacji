@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kalkulator delegacji BOBRTECH</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="naglowek">
+    <div class="naglowek__tresc">
+      <p class="marka">BOBRTECH</p>
+      <h1>Kalkulator delegacji</h1>
+      <p class="podtytul">Limit noclegu według polityki <span data-zrodlo>HR-POL-03 v3.0 §3</span></p>
+    </div>
+  </header>
+
+  <main>
+    <noscript>
+      <p class="karta">Kalkulator wymaga włączonego JavaScriptu w przeglądarce.</p>
+    </noscript>
+
+    <section class="karta" aria-labelledby="formularz-tytul">
+      <h2 id="formularz-tytul">Dane noclegu</h2>
+      <form id="formularz-noclegu" novalidate>
+        <div class="pole">
+          <label for="lokalizacja">Lokalizacja</label>
+          <select id="lokalizacja" name="lokalizacja"></select>
+        </div>
+
+        <div class="pole">
+          <label for="liczba-nocy">Liczba nocy</label>
+          <input id="liczba-nocy" name="liczbaNocy" type="number" min="1" step="1"
+                 inputmode="numeric" value="1" required aria-describedby="liczba-nocy-blad">
+          <p class="blad" id="liczba-nocy-blad" hidden></p>
+        </div>
+
+        <div class="pole">
+          <label for="cena">Cena hotelu za dobę (<span id="cena-waluta">PLN</span>)</label>
+          <input id="cena" name="cena" type="text" inputmode="decimal" autocomplete="off"
+                 placeholder="np. 480,00" required aria-describedby="cena-podpowiedz cena-blad">
+          <p class="podpowiedz" id="cena-podpowiedz">Podaj cenę w walucie limitu. Kalkulator nie przelicza kursów walut.</p>
+          <p class="blad" id="cena-blad" hidden></p>
+        </div>
+      </form>
+    </section>
+
+    <section class="karta" aria-labelledby="wynik-tytul">
+      <h2 id="wynik-tytul">Wynik</h2>
+      <p id="wynik-pusty" class="wynik-pusty">Uzupełnij liczbę nocy i cenę hotelu, aby zobaczyć wynik.</p>
+
+      <dl id="wynik" class="wyniki" hidden>
+        <div>
+          <dt>Limit za dobę</dt>
+          <dd id="w-limit-doba"></dd>
+        </div>
+        <div>
+          <dt>Limit łącznie</dt>
+          <dd id="w-limit-lacznie"></dd>
+        </div>
+        <div>
+          <dt>Koszt hotelu łącznie</dt>
+          <dd id="w-koszt-lacznie"></dd>
+        </div>
+        <div>
+          <dt>Różnica (koszt − limit)</dt>
+          <dd id="w-roznica"></dd>
+        </div>
+        <div>
+          <dt>Procent przekroczenia limitu</dt>
+          <dd id="w-procent"></dd>
+        </div>
+      </dl>
+
+      <div id="status" class="status" role="status" hidden>
+        <strong id="status-tytul"></strong>
+        <p id="status-opis"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="stopka">
+    <p>
+      Zasady pochodzą z fikcyjnej polityki szkoleniowej <span data-zrodlo>HR-POL-03 v3.0 §3</span>
+      firmy BOBRTECH (firma fikcyjna, projekt szkoleniowy).
+    </p>
+    <p>
+      Kalkulator nie liczy diet: polityka odsyła w tym zakresie do przepisów i nie podaje kwot.
+      Dane z formularza nie są nigdzie zapisywane ani wysyłane.
+    </p>
+  </footer>
+</body>
+</html>
