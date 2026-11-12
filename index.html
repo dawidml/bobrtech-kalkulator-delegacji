@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'unsafe-inline'">
+<title>AI Prompt Timeline</title><style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:#e9edf5;background:#10131a}
+*{box-sizing:border-box}body{margin:0}header{padding:22px 30px;border-bottom:1px solid #2b3445;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+h1{font-size:21px;margin:0 0 6px}small,.muted{color:#9caabd}main{display:grid;grid-template-columns:minmax(290px,35%) 1fr;height:calc(100vh - 100px)}
+nav{overflow:auto;border-right:1px solid #2b3445}article{overflow:auto;padding:26px 30px}.entry{display:block;padding:15px 22px;text-decoration:none;color:inherit;border-bottom:1px solid #273042;cursor:pointer}
+.entry:hover,.entry.selected{background:#222a3b}.entry strong{display:block;margin:6px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{display:inline-block;padding:3px 8px;border-radius:20px;background:#34405a;font-size:12px;color:#d6e5ff}.tag.Claude{background:#5b3a2e;color:#ffd9c7}.tag.Cursor{background:#2c3f5c;color:#cfe3ff}.tag.Git{background:#2f3a2f;color:#cfe8cf}
+.done{color:#83db9c}.none{color:#c0c9d5}.bad{color:#ffac91}
+pre{overflow:auto;background:#171c27;padding:18px;border-radius:10px;font-size:12px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.diff{white-space:pre;overflow:auto;max-width:100%;font-size:12px;line-height:1.55}.add{color:#98e9ac;background:#173024}.del{color:#ffb4ad;background:#3c2029}
+.meta{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:14px 0 24px}a.link{color:#9ec8ff;text-decoration:none}a.link:hover{text-decoration:underline}
+.filters{display:flex;gap:8px;flex-wrap:wrap;padding:12px 22px;border-bottom:1px solid #273042}.filters button{background:#1b2130;color:#d6e5ff;border:1px solid #34405a;border-radius:20px;padding:4px 12px;cursor:pointer;font:inherit;font-size:12px}
+.filters button.on{background:#34405a}
+@media(max-width:760px){main{grid-template-columns:1fr;height:auto}nav{max-height:42vh;border-right:0;border-bottom:1px solid #2b3445}article{padding:18px}}
+</style></head>
+<body><header><div><h1>AI Prompt Timeline</h1><small id="sub"></small></div><div id="links"></div></header>
+<main><nav><div class="filters" id="filters"></div><div id="list"></div></nav><article id="panel"></article></main>
+<script src="data.js"></script><script src="timeline.js"></script></body></html>
