@@ -1,0 +1,7 @@
+---
+description: Shared project memory for AI coding assistants
+globs:
+alwaysApply: true
+---
+
+Follow `AGENTS.md` at project root. Before work read `ai-memory/PROJECT_STATE.md`, `ai-memory/DECISIONS.md`, `ai-memory/NEXT_STEPS.md`, and `ai-memory/RESEARCH.md`. After work update relevant notes and distinguish confirmed facts from assumptions.
