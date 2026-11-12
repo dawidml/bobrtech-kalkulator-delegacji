@@ -1,9 +1,11 @@
 # Kalkulator delegacji BOBRTECH
 
-Prosta aplikacja www, która sprawdza, czy koszt hotelu w delegacji mieści się w limicie noclegu.
-To projekt szkoleniowy: firma BOBRTECH i jej polityka są fikcyjne.
+Prosta aplikacja www do sprawdzenia limitu noclegu, klasy pociągu oraz terminu rozliczenia
+delegacji. To projekt szkoleniowy: firma BOBRTECH i jej polityka są fikcyjne.
 
 ## Co robi
+
+### Nocleg
 
 Podajesz:
 
@@ -22,6 +24,13 @@ komunikat: „Wymaga zgody dyrektora pionu w systemie Delegatka”.
 | Zagranica – standard | 160 EUR |
 | Szwecja, Norwegia, Dania | 210 EUR |
 
+### Transport i rozliczenie
+
+- **Klasa pociągu** – podajesz czas podróży pociągiem w jedną stronę (w godzinach).
+  1 klasa przysługuje tylko przy podróży trwającej powyżej 3 godzin.
+- **Termin rozliczenia** – podajesz datę powrotu z delegacji. Kalkulator pokazuje ostatni dzień
+  na rozliczenie w systemie Delegatka: 14 dni kalendarzowych od powrotu.
+
 Czego kalkulator nie robi:
 
 - nie liczy diet, bo polityka odsyła w tym zakresie do przepisów i nie podaje kwot,
@@ -35,12 +44,16 @@ uruchamiać serwera ani łączyć się z internetem.
 
 ## Pliki
 
-- `index.html` – formularz i miejsce na wynik,
+- `index.html` – formularze i miejsce na wyniki,
 - `style.css` – wygląd (także tryb ciemny),
-- `app.js` – limity i obliczenia.
+- `app.js` – limity, progi i obliczenia.
 
 ## Skąd są zasady
 
-Zasady pochodzą z fikcyjnej polityki szkoleniowej BOBRTECH **HR-POL-03 v3.0 §3**.
-Wszystkie limity i próg zgody (10%) są w jednym obiekcie `POLITYKA_NOCLEGU` w pliku `app.js`.
-Żeby zmienić zasady, edytuj tylko ten obiekt; lista lokalizacji w formularzu powstaje z niego.
+Zasady pochodzą z fikcyjnej polityki szkoleniowej BOBRTECH **HR-POL-03 v3.0**:
+
+- nocleg i próg zgody (10%) – `POLITYKA_NOCLEGU` [§3],
+- klasa pociągu i termin rozliczenia – `POLITYKA_TRANSPORTU_I_ROZLICZENIA` [§4, §6].
+
+Oba obiekty są w pliku `app.js`. Żeby zmienić zasady, edytuj odpowiedni obiekt; lista lokalizacji
+w formularzu noclegu powstaje z `POLITYKA_NOCLEGU`.

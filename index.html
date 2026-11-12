@@ -12,7 +12,7 @@
     <div class="naglowek__tresc">
       <p class="marka">BOBRTECH</p>
       <h1>Kalkulator delegacji</h1>
-      <p class="podtytul">Limit noclegu według polityki <span data-zrodlo>HR-POL-03 v3.0 §3</span></p>
+      <p class="podtytul">Nocleg, transport i rozliczenie według polityki HR-POL-03 v3.0</p>
     </div>
   </header>
 
@@ -47,7 +47,7 @@
     </section>
 
     <section class="karta" aria-labelledby="wynik-tytul">
-      <h2 id="wynik-tytul">Wynik</h2>
+      <h2 id="wynik-tytul">Wynik noclegu</h2>
       <p id="wynik-pusty" class="wynik-pusty">Uzupełnij liczbę nocy i cenę hotelu, aby zobaczyć wynik.</p>
 
       <dl id="wynik" class="wyniki" hidden>
@@ -78,12 +78,52 @@
         <p id="status-opis"></p>
       </div>
     </section>
+
+    <section class="karta" aria-labelledby="transport-tytul">
+      <h2 id="transport-tytul">Transport i rozliczenie</h2>
+      <form id="formularz-transportu" novalidate>
+        <div class="pole">
+          <label for="czas-pociagu">Czas podróży pociągiem w jedną stronę (godziny)</label>
+          <input id="czas-pociagu" name="czasPociagu" type="text" inputmode="decimal"
+                 autocomplete="off" placeholder="np. 3,5" aria-describedby="czas-pociagu-podpowiedz czas-pociagu-blad">
+          <p class="podpowiedz" id="czas-pociagu-podpowiedz">
+            1 klasa przysługuje tylko przy podróży trwającej powyżej 3 godzin
+            [<span data-zrodlo-klasy>HR-POL-03 v3.0 §4</span>].
+          </p>
+          <p class="blad" id="czas-pociagu-blad" hidden></p>
+        </div>
+
+        <div id="status-klasa" class="status" role="status" hidden>
+          <strong id="status-klasa-tytul"></strong>
+          <p id="status-klasa-opis"></p>
+        </div>
+
+        <div class="pole pole--po-statusie">
+          <label for="data-powrotu">Data powrotu z delegacji</label>
+          <input id="data-powrotu" name="dataPowrotu" type="date"
+                 aria-describedby="data-powrotu-podpowiedz data-powrotu-blad">
+          <p class="podpowiedz" id="data-powrotu-podpowiedz">
+            Na rozliczenie w systemie Delegatka masz 14 dni kalendarzowych od powrotu
+            [<span data-zrodlo-rozliczenia>HR-POL-03 v3.0 §6</span>].
+          </p>
+          <p class="blad" id="data-powrotu-blad" hidden></p>
+        </div>
+
+        <div id="status-rozliczenie" class="status" role="status" hidden>
+          <strong id="status-rozliczenie-tytul"></strong>
+          <p id="status-rozliczenie-opis"></p>
+        </div>
+      </form>
+    </section>
   </main>
 
   <footer class="stopka">
     <p>
-      Zasady pochodzą z fikcyjnej polityki szkoleniowej <span data-zrodlo>HR-POL-03 v3.0 §3</span>
-      firmy BOBRTECH (firma fikcyjna, projekt szkoleniowy).
+      Zasady pochodzą z fikcyjnej polityki szkoleniowej HR-POL-03 v3.0 firmy BOBRTECH
+      (nocleg: <span data-zrodlo>HR-POL-03 v3.0 §3</span>;
+      klasa pociągu: <span data-zrodlo-klasy>HR-POL-03 v3.0 §4</span>;
+      termin rozliczenia: <span data-zrodlo-rozliczenia>HR-POL-03 v3.0 §6</span>).
+      Firma fikcyjna, projekt szkoleniowy.
     </p>
     <p>
       Kalkulator nie liczy diet: polityka odsyła w tym zakresie do przepisów i nie podaje kwot.

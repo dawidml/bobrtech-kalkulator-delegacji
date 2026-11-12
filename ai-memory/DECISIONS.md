@@ -34,3 +34,18 @@ Record only decisions supported by code, documentation or an explicit user state
 - Rationale / evidence: treść zadania: „Gdy przekroczenie jest większe niż 10% limitu”.
 - Consequences: dla przekroczenia 0–10% UI pokazuje neutralny status „Limit przekroczony”
   bez dodatkowych reguł (polityka w zadaniu nie opisuje innych skutków).
+
+## 2026-11-12 – Transport i rozliczenie w `POLITYKA_TRANSPORTU_I_ROZLICZENIA`
+- Decision: próg 1 klasy pociągu (powyżej 3 h) i termin rozliczenia (14 dni kalendarzowych od
+  powrotu) są w jednym obiekcie `POLITYKA_TRANSPORTU_I_ROZLICZENIA` obok `POLITYKA_NOCLEGU`,
+  z komentarzem o źródłach [HR-POL-03 v3.0 §4] i [§6].
+- Rationale / evidence: wymóg zadania – zasady w jednym obiekcie obok polityki noclegu.
+- Consequences: dokładnie 3 h → bez 1 klasy; ostatni dzień rozliczenia = data powrotu + 14 dni
+  (lokalna data kalendarzowa, bez przesunięć strefy czasowej).
+
+## 2026-11-12 – Osobny formularz DOM dla transportu i rozliczenia
+- Decision: sekcja „Transport i rozliczenie” ma własny formularz i `uruchomFormularzTransportu`,
+  startowane razem z noclegiem przez `uruchomAplikacje`.
+- Rationale / evidence: pola są niezależne od limitu noclegu; zachowanie stylu przeliczania na żywo.
+- Consequences: nowe reguły §4/§6 nie mieszają się z walidacją nocy/ceny; funkcje czyste są
+  eksportowane przez `module.exports` jak dotychczas.

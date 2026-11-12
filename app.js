@@ -1,11 +1,12 @@
 'use strict';
 
 /*
- * Kalkulator delegacji BOBRTECH – moduł: limit noclegu.
+ * Kalkulator delegacji BOBRTECH – nocleg, transport i rozliczenie.
  *
- * Źródło zasad: [HR-POL-03 v3.0 §3] – fikcyjna polityka szkoleniowa firmy BOBRTECH.
- * Wszystkie limity noclegu i próg zgody dyrektora są w jednym obiekcie POLITYKA_NOCLEGU.
- * Zmiana polityki = zmiana tylko tego obiektu (lista lokalizacji w formularzu powstaje z niego).
+ * Źródło zasad: fikcyjna polityka szkoleniowa firmy BOBRTECH [HR-POL-03 v3.0].
+ * Limity noclegu i próg zgody dyrektora: POLITYKA_NOCLEGU [§3].
+ * Klasa pociągu i termin rozliczenia: POLITYKA_TRANSPORTU_I_ROZLICZENIA [§4, §6].
+ * Zmiana polityki = zmiana tylko tych obiektów (lista lokalizacji powstaje z POLITYKA_NOCLEGU).
  *
  * Kalkulator nie liczy diet: polityka odsyła w tym zakresie do przepisów i nie podaje kwot.
  */
@@ -37,6 +38,19 @@ const POLITYKA_NOCLEGU = {
       waluta: 'EUR',
     },
   },
+};
+
+/*
+ * Źródło zasad: [HR-POL-03 v3.0 §4] klasa pociągu, [HR-POL-03 v3.0 §6] termin rozliczenia.
+ * Wszystkie progi transportu i rozliczenia są w jednym obiekcie POLITYKA_TRANSPORTU_I_ROZLICZENIA.
+ */
+const POLITYKA_TRANSPORTU_I_ROZLICZENIA = {
+  zrodloKlasy: 'HR-POL-03 v3.0 §4',
+  zrodloRozliczenia: 'HR-POL-03 v3.0 §6',
+  // 1 klasa przysługuje tylko przy podróży trwającej POWYŻEJ tej liczby godzin (w jedną stronę).
+  progPierwszejKlasyGodziny: 3,
+  // Ostatni dzień na rozliczenie w Delegatce = data powrotu + ta liczba dni kalendarzowych.
+  dniNaRozliczenie: 14,
 };
 
 /* ---------- Obliczenia (bez DOM, do testów) ---------- */
@@ -122,6 +136,79 @@ function formatujProcentPrzekroczenia(wynik) {
   return tekst;
 }
 
+/**
+ * Parsuje czas podróży w godzinach („3”, „3,5”, „3.25”). Zwraca null przy błędzie.
+ */
+function parsujGodziny(tekst) {
+  const oczyszczony = String(tekst).replace(/[\s ]/g, '').replace(',', '.');
+  if (oczyszczony === '') return null;
+  if (!/^\d+(?:\.\d+)?$/.test(oczyszczony)) return null;
+  const godziny = Number(oczyszczony);
+  return Number.isFinite(godziny) ? godziny : null;
+}
+
+/**
+ * Czy przysługuje 1 klasa pociągu według [HR-POL-03 v3.0 §4]:
+ * tylko gdy czas podróży w jedną stronę jest WIĘKSZY niż próg (domyślnie 3 h).
+ */
+function ocenKlasePociagu(czasGodzin) {
+  if (typeof czasGodzin !== 'number' || !Number.isFinite(czasGodzin) || czasGodzin < 0) {
+    throw new RangeError('Czas podróży musi być liczbą godzin nie mniejszą niż 0.');
+  }
+  const prog = POLITYKA_TRANSPORTU_I_ROZLICZENIA.progPierwszejKlasyGodziny;
+  return {
+    czasGodzin,
+    progGodzin: prog,
+    przyslugujePierwszaKlasa: czasGodzin > prog,
+  };
+}
+
+/**
+ * Parsuje datę z pola type="date" (YYYY-MM-DD) jako lokalną datę kalendarzową.
+ * Zwraca null, gdy tekst nie jest poprawną datą.
+ */
+function parsujDateLokalna(tekst) {
+  const dopasowanie = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(tekst).trim());
+  if (!dopasowanie) return null;
+  const rok = Number(dopasowanie[1]);
+  const miesiac = Number(dopasowanie[2]);
+  const dzien = Number(dopasowanie[3]);
+  const data = new Date(rok, miesiac - 1, dzien);
+  if (
+    data.getFullYear() !== rok
+    || data.getMonth() !== miesiac - 1
+    || data.getDate() !== dzien
+  ) {
+    return null;
+  }
+  return data;
+}
+
+function formatujDate(data) {
+  return new Intl.DateTimeFormat('pl-PL', { dateStyle: 'long' }).format(data);
+}
+
+/**
+ * Liczy ostatni dzień na rozliczenie w Delegatce według [HR-POL-03 v3.0 §6]:
+ * data powrotu + dniNaRozliczenie dni kalendarzowych.
+ */
+function obliczTerminRozliczenia(dataPowrotu) {
+  if (!(dataPowrotu instanceof Date) || Number.isNaN(dataPowrotu.getTime())) {
+    throw new RangeError('Data powrotu musi być poprawną datą.');
+  }
+  const dni = POLITYKA_TRANSPORTU_I_ROZLICZENIA.dniNaRozliczenie;
+  const termin = new Date(
+    dataPowrotu.getFullYear(),
+    dataPowrotu.getMonth(),
+    dataPowrotu.getDate() + dni,
+  );
+  return {
+    dataPowrotu,
+    dniNaRozliczenie: dni,
+    ostatniDzienRozliczenia: termin,
+  };
+}
+
 /* ---------- Formularz (DOM) ---------- */
 
 const KOMUNIKAT_PUSTY = 'Uzupełnij liczbę nocy i cenę hotelu, aby zobaczyć wynik.';
@@ -185,6 +272,12 @@ function uruchomFormularz() {
 
   zbudujListeLokalizacji(el.lokalizacja);
   el.zrodlo.forEach((wezel) => { wezel.textContent = POLITYKA_NOCLEGU.zrodlo; });
+  document.querySelectorAll('[data-zrodlo-klasy]').forEach((wezel) => {
+    wezel.textContent = POLITYKA_TRANSPORTU_I_ROZLICZENIA.zrodloKlasy;
+  });
+  document.querySelectorAll('[data-zrodlo-rozliczenia]').forEach((wezel) => {
+    wezel.textContent = POLITYKA_TRANSPORTU_I_ROZLICZENIA.zrodloRozliczenia;
+  });
 
   function pokazStatus(wariant, tytul, opis) {
     el.status.className = `status status--${wariant}`;
@@ -255,23 +348,151 @@ function uruchomFormularz() {
   aktualizuj();
 }
 
+function odczytajCzasPociagu(input) {
+  if (input.validity && input.validity.badInput) {
+    return { wartosc: null, blad: 'Podaj czas podróży w godzinach, np. 2 lub 3,5.' };
+  }
+  const tekst = input.value.trim();
+  if (tekst === '') return { wartosc: null, blad: '' };
+  const godziny = parsujGodziny(tekst);
+  if (godziny === null) {
+    return { wartosc: null, blad: 'Podaj czas podróży w godzinach, np. 2 lub 3,5.' };
+  }
+  return { wartosc: godziny, blad: '' };
+}
+
+function odczytajDatePowrotu(input) {
+  const tekst = input.value.trim();
+  if (tekst === '') return { wartosc: null, blad: '' };
+  const data = parsujDateLokalna(tekst);
+  if (data === null) {
+    return { wartosc: null, blad: 'Podaj poprawną datę powrotu z delegacji.' };
+  }
+  return { wartosc: data, blad: '' };
+}
+
+function uruchomFormularzTransportu() {
+  const el = {
+    formularz: document.getElementById('formularz-transportu'),
+    czasPociagu: document.getElementById('czas-pociagu'),
+    czasPociaguBlad: document.getElementById('czas-pociagu-blad'),
+    statusKlasa: document.getElementById('status-klasa'),
+    statusKlasaTytul: document.getElementById('status-klasa-tytul'),
+    statusKlasaOpis: document.getElementById('status-klasa-opis'),
+    dataPowrotu: document.getElementById('data-powrotu'),
+    dataPowrotuBlad: document.getElementById('data-powrotu-blad'),
+    statusRozliczenie: document.getElementById('status-rozliczenie'),
+    statusRozliczenieTytul: document.getElementById('status-rozliczenie-tytul'),
+    statusRozliczenieOpis: document.getElementById('status-rozliczenie-opis'),
+  };
+
+  function pokazStatusBloku(statusEl, tytulEl, opisEl, wariant, tytul, opis) {
+    statusEl.className = `status status--${wariant}`;
+    tytulEl.textContent = tytul;
+    opisEl.textContent = opis;
+    statusEl.hidden = false;
+  }
+
+  function ukryjStatus(statusEl) {
+    statusEl.hidden = true;
+  }
+
+  function aktualizujKlase() {
+    const odczyt = odczytajCzasPociagu(el.czasPociagu);
+    pokazBlad(el.czasPociaguBlad, el.czasPociagu, odczyt.blad);
+    if (odczyt.wartosc === null) {
+      ukryjStatus(el.statusKlasa);
+      return;
+    }
+    try {
+      const wynik = ocenKlasePociagu(odczyt.wartosc);
+      const zrodlo = POLITYKA_TRANSPORTU_I_ROZLICZENIA.zrodloKlasy;
+      const prog = wynik.progGodzin;
+      if (wynik.przyslugujePierwszaKlasa) {
+        pokazStatusBloku(
+          el.statusKlasa, el.statusKlasaTytul, el.statusKlasaOpis,
+          'ok',
+          'Przysługuje 1 klasa',
+          `Podróż w jedną stronę trwa powyżej ${prog} godzin [${zrodlo}].`,
+        );
+      } else {
+        pokazStatusBloku(
+          el.statusKlasa, el.statusKlasaTytul, el.statusKlasaOpis,
+          'uwaga',
+          'Nie przysługuje 1 klasa',
+          `1 klasa przysługuje tylko przy podróży trwającej powyżej ${prog} godzin [${zrodlo}].`,
+        );
+      }
+    } catch (blad) {
+      ukryjStatus(el.statusKlasa);
+      pokazBlad(el.czasPociaguBlad, el.czasPociagu, blad.message);
+    }
+  }
+
+  function aktualizujRozliczenie() {
+    const odczyt = odczytajDatePowrotu(el.dataPowrotu);
+    pokazBlad(el.dataPowrotuBlad, el.dataPowrotu, odczyt.blad);
+    if (odczyt.wartosc === null) {
+      ukryjStatus(el.statusRozliczenie);
+      return;
+    }
+    try {
+      const wynik = obliczTerminRozliczenia(odczyt.wartosc);
+      const zrodlo = POLITYKA_TRANSPORTU_I_ROZLICZENIA.zrodloRozliczenia;
+      pokazStatusBloku(
+        el.statusRozliczenie, el.statusRozliczenieTytul, el.statusRozliczenieOpis,
+        'ok',
+        `Ostatni dzień na rozliczenie: ${formatujDate(wynik.ostatniDzienRozliczenia)}`,
+        `${wynik.dniNaRozliczenie} dni kalendarzowych od powrotu (${formatujDate(wynik.dataPowrotu)}) w systemie Delegatka [${zrodlo}].`,
+      );
+    } catch (blad) {
+      ukryjStatus(el.statusRozliczenie);
+      pokazBlad(el.dataPowrotuBlad, el.dataPowrotu, blad.message);
+    }
+  }
+
+  function aktualizuj() {
+    aktualizujKlase();
+    aktualizujRozliczenie();
+  }
+
+  el.formularz.addEventListener('input', aktualizuj);
+  el.formularz.addEventListener('change', aktualizuj);
+  el.formularz.addEventListener('submit', (zdarzenie) => {
+    zdarzenie.preventDefault();
+    aktualizuj();
+  });
+  aktualizuj();
+}
+
+function uruchomAplikacje() {
+  uruchomFormularz();
+  uruchomFormularzTransportu();
+}
+
 /* ---------- Start ---------- */
 
-// W przeglądarce uruchom formularz; w Node.js tylko udostępnij funkcje do testów.
+// W przeglądarce uruchom formularze; w Node.js tylko udostępnij funkcje do testów.
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', uruchomFormularz);
+    document.addEventListener('DOMContentLoaded', uruchomAplikacje);
   } else {
-    uruchomFormularz();
+    uruchomAplikacje();
   }
 }
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     POLITYKA_NOCLEGU,
+    POLITYKA_TRANSPORTU_I_ROZLICZENIA,
     parsujKwoteNaSetne,
     obliczNocleg,
     formatujKwote,
     formatujProcentPrzekroczenia,
+    parsujGodziny,
+    ocenKlasePociagu,
+    parsujDateLokalna,
+    formatujDate,
+    obliczTerminRozliczenia,
   };
 }
